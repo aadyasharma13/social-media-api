@@ -150,7 +150,7 @@ export class UserController {
           updatedAt: updatedUser.updatedAt
         }
       }, 'Profile updated successfully');
-    } catch (error: any) {
+  } catch (error) {
       if (error.name === 'ValidationError') {
         return sendError(res, 'Validation error', 422, Object.keys(error.errors).reduce((errors: any, key: string) => {
           errors[key] = error.errors[key].message;
@@ -180,7 +180,7 @@ export class UserController {
 
       await followUser(followerId, targetId);
       return sendSuccess(res, null, 'User followed successfully');
-    } catch (error: any) {
+  } catch (error) {
       if (error.message === 'Already following this user' || error.code === 11000) {
         return sendError(res, 'Already following this user', 409);
       }
@@ -209,7 +209,7 @@ export class UserController {
 
       await unfollowUser(followerId, targetId);
       return sendSuccess(res, null, 'User unfollowed successfully');
-    } catch (error: any) {
+  } catch (error) {
       if (error.message === 'Not following this user') {
         return sendNotFound(res, 'Not following this user');
       }

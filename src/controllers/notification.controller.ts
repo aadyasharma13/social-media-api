@@ -1,7 +1,79 @@
 import { Request, Response, NextFunction } from 'express';
+import { Types } from 'mongoose';
 import { Notification } from '../database/models/notification.model';
+import type IUserModel from '../database/models/user.model';
+import type IPostModel from '../database/models/post.model';
 import { paginate } from '../utilities/pagination';
 import { sendSuccess, sendUnauthorized, sendNotFound, sendForbidden } from '../utilities/response';
+
+const isPopulatedUser = (value: any): value is IUserModel => {
+  return value && typeof value === 'object' && '_id' in value && 'username' in value;
+};
+
+const isPopulatedPost = (value: any): value is IPostModel => {
+  return value && typeof value === 'object' && '_id' in value && 'content' in value;
+};
+
+const toObjectIdString = (value: string | Types.ObjectId | undefined | null): string | null => {
+  if (!value) {
+    return null;
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if ('toString' in value) {
+    return value.toString();
+  }
+  return null;
+};
+
+const buildSenderPayload = (sender: IUserModel | Types.ObjectId | string | undefined | null) => {
+  if (!sender) {
+    return null;
+  }
+  if (isPopulatedUser(sender)) {
+    return {
+      id: toObjectIdString(sender._id) || undefined,
+      username: sender.username,
+      avatarUrl: sender.avatarUrl || sender.image || null,
+      bio: sender.bio || null
+    };
+  }
+
+  const id = toObjectIdString(sender as Types.ObjectId | string | undefined);
+  if (!id) {
+    return null;
+  }
+  return {
+    id,
+    username: null,
+    avatarUrl: null,
+    bio: null
+  };
+};
+
+const buildPostPayload = (post: IPostModel | Types.ObjectId | string | undefined | null) => {
+  if (!post) {
+    return null;
+  }
+  if (isPopulatedPost(post)) {
+    return {
+      id: toObjectIdString(post._id) || undefined,
+      content: post.content,
+      imageUrl: post.imageUrl || null
+    };
+  }
+
+  const id = toObjectIdString(post as Types.ObjectId | string | undefined);
+  if (!id) {
+    return null;
+  }
+  return {
+    id,
+    content: null,
+    imageUrl: null
+  };
+};
 
 /**
  * Notification Controller
@@ -50,17 +122,8 @@ export class NotificationController {
         return {
           id: notification._id,
           type: notification.type,
-          sender: {
-            id: notification.sender._id,
-            username: notification.sender.username,
-            avatarUrl: notification.sender.avatarUrl || notification.sender.image,
-            bio: notification.sender.bio
-          },
-          post: notification.post ? {
-            id: notification.post._id,
-            content: notification.post.content,
-            imageUrl: notification.post.imageUrl
-          } : null,
+          sender: buildSenderPayload(notification.sender),
+          post: buildPostPayload(notification.post),
           isRead: notification.isRead,
           createdAt: notification.createdAt
         };
@@ -115,17 +178,8 @@ export class NotificationController {
         notification: {
           id: notification._id,
           type: notification.type,
-          sender: {
-            id: notification.sender._id,
-            username: notification.sender.username,
-            avatarUrl: notification.sender.avatarUrl || notification.sender.image,
-            bio: notification.sender.bio
-          },
-          post: notification.post ? {
-            id: notification.post._id,
-            content: notification.post.content,
-            imageUrl: notification.post.imageUrl
-          } : null,
+          sender: buildSenderPayload(notification.sender),
+          post: buildPostPayload(notification.post),
           isRead: notification.isRead,
           createdAt: notification.createdAt
         }

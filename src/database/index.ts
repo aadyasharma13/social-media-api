@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
 import logger from "../utilities/logger";
-import { DB } from "../utilities/secrets";
+import { DB, DB_URI } from "../utilities/secrets";
 
 // Build the connection string
-// Support both authenticated and non-authenticated connections
+// Support SRV URIs (Atlas) plus legacy host/port combinations
 let dbURI: string;
-if (DB.USER && DB.PASSWORD && DB.USER !== '' && DB.PASSWORD !== '') {
-  // Authenticated connection
+if (DB_URI && DB_URI.trim().length > 0) {
+  dbURI = DB_URI;
+} else if (DB.USER && DB.PASSWORD && DB.USER !== '' && DB.PASSWORD !== '') {
   dbURI = `mongodb://${DB.USER}:${encodeURIComponent(DB.PASSWORD)}@${DB.HOST}:${DB.PORT}/${DB.NAME}`;
 } else {
-  // Non-authenticated connection (for local development)
   dbURI = `mongodb://${DB.HOST}:${DB.PORT}/${DB.NAME}`;
 }
 

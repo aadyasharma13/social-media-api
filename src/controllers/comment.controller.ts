@@ -28,7 +28,11 @@ export class CommentController {
         return sendUnauthorized(res, 'User not found');
       }
 
-      const isAuthor = comment.user.toString() === userId.toString();
+      // Handle both populated and non-populated user field
+      const commentUserId = typeof comment.user === 'object' && comment.user !== null 
+        ? (comment.user as any)._id || comment.user 
+        : comment.user;
+      const isAuthor = commentUserId.toString() === userId.toString();
       const isAdmin = user.role === 'admin';
 
       if (!isAuthor && !isAdmin) {

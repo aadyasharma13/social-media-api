@@ -1,6 +1,5 @@
 import express from 'express';
-import { Application } from 'express';
-import * as bodyParser from 'body-parser';
+import { Application, RequestHandler } from 'express';
 import { MainRouter } from './routes';
 import { loadErrorHandlers } from './utilities/error-handling';
 import session from 'express-session';
@@ -16,7 +15,12 @@ const app: Application = express();
 
 app.use(helmet());
 app.use(compression());
-app.use(bodyParser.json());
+
+const jsonParser: RequestHandler = express.json();
+const urlencodedParser: RequestHandler = express.urlencoded({ extended: true });
+
+app.use(jsonParser);
+app.use(urlencodedParser);
 app.use(session({
     secret: SESSION_SECRET,
     cookie: {

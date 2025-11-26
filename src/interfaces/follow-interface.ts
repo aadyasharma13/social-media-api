@@ -1,8 +1,8 @@
-import User from '../database/models/user.model';
+import { Types } from 'mongoose';
 
 export interface IFollow {
-  follower: User;
-  following: User;
+  follower: Types.ObjectId | string;
+  following: Types.ObjectId | string;
   createdAt: Date;
 }
 

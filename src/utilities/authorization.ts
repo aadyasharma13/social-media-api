@@ -42,7 +42,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
     // User is admin, proceed
     next();
-  } catch (error: any) {
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: 'Error checking admin authorization',

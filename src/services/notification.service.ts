@@ -1,43 +1,79 @@
 import { Notification } from '../database/models/notification.model';
+import INotificationModel from '../database/models/notification.model';
+import { BroadcastNotification } from '../decorators/realtime.decorator';
 
-/**
- * Notification Service
- * Handles notification creation and management
- */
+type NotificationType = 'follow' | 'like' | 'comment';
 
-/**
- * Create a notification
- * @param userId - ID of the user who receives the notification
- * @param type - Type of notification: 'follow' | 'like' | 'comment'
- * @param senderId - ID of the user who triggered the notification
- * @param postId - ID of the post (null for follow notifications)
- * @returns Promise<boolean> - true if successful
- */
+const POPULATE_FIELDS = [
+  { path: 'sender', select: 'username avatarUrl image bio' },
+  { path: 'post', select: 'content imageUrl' }
+];
+
+const mapNotificationPayload = (notification: INotificationModel) => {
+  const sender: any = notification.sender;
+  const post: any = notification.post;
+
+  return {
+    id: notification._id,
+    type: notification.type,
+    sender: sender ? {
+      id: sender._id ? sender._id.toString() : sender.toString?.(),
+      username: sender.username,
+      avatarUrl: sender.avatarUrl || sender.image || null,
+      bio: sender.bio || null
+    } : null,
+    post: post ? {
+      id: post._id ? post._id.toString() : post.toString?.(),
+      content: post.content,
+      imageUrl: post.imageUrl || null
+    } : null,
+    isRead: notification.isRead,
+    createdAt: notification.createdAt
+  };
+};
+
+class NotificationService {
+  @BroadcastNotification<INotificationModel>({
+    payloadMapper: mapNotificationPayload
+  })
+  public async createNotification(
+    userId: string,
+    type: NotificationType,
+    senderId: string,
+    postId: string | null = null
+  ): Promise<INotificationModel | null> {
+    try {
+      if (userId === senderId) {
+        return null;
+      }
+
+      const notification = new Notification({
+        user: userId,
+        type,
+        sender: senderId,
+        post: postId,
+        isRead: false
+      });
+
+      await notification.save();
+      await notification.populate(POPULATE_FIELDS);
+      return notification;
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      return null;
+    }
+  }
+}
+
+const notificationService = new NotificationService();
+
 export const createNotification = async (
   userId: string,
-  type: 'follow' | 'like' | 'comment',
+  type: NotificationType,
   senderId: string,
   postId: string | null = null
-): Promise<boolean> => {
-  try {
-    // Don't create notification if user is notifying themselves
-    if (userId === senderId) {
-      return false;
-    }
-
-    const notification = new Notification({
-      user: userId,
-      type: type,
-      sender: senderId,
-      post: postId,
-      isRead: false
-    });
-
-    await notification.save();
-    return true;
-  } catch (error) {
-    console.error('Error creating notification:', error);
-    return false;
-  }
+): Promise<void> => {
+  await notificationService.createNotification(userId, type, senderId, postId);
 };
+
 

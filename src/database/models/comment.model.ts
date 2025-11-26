@@ -31,7 +31,7 @@ const CommentSchema = new Schema({
 });
 
 // Increment post.commentsCount when a comment is created
-CommentSchema.post('save', async function() {
+CommentSchema.post<ICommentModel>('save', async function(this: ICommentModel) {
   try {
     await Post.findByIdAndUpdate(this.post, {
       $inc: { commentsCount: 1 }
@@ -43,7 +43,7 @@ CommentSchema.post('save', async function() {
 
 // Decrement post.commentsCount when a comment is deleted
 // Handle findOneAndDelete and findByIdAndDelete
-CommentSchema.post('findOneAndDelete', async function(doc) {
+CommentSchema.post<ICommentModel>('findOneAndDelete', async function(doc: ICommentModel | null) {
   if (doc) {
     try {
       await Post.findByIdAndUpdate(doc.post, {
@@ -55,7 +55,7 @@ CommentSchema.post('findOneAndDelete', async function(doc) {
   }
 });
 
-CommentSchema.post('findByIdAndDelete', async function(doc) {
+CommentSchema.post<ICommentModel>('findByIdAndDelete', async function(doc: ICommentModel | null) {
   if (doc) {
     try {
       await Post.findByIdAndUpdate(doc.post, {
@@ -68,7 +68,7 @@ CommentSchema.post('findByIdAndDelete', async function(doc) {
 });
 
 // Also handle remove() method (for backward compatibility)
-CommentSchema.post('remove', async function() {
+CommentSchema.post<ICommentModel>('remove', async function(this: ICommentModel) {
   try {
     await Post.findByIdAndUpdate(this.post, {
       $inc: { commentsCount: -1 }

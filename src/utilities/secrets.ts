@@ -17,3 +17,4 @@ export const DB             = {
   NAME    : _.defaultTo(process.env.DB_NAME, "social_media_api"),
   PORT    : _.defaultTo(parseInt(process.env.DB_PORT), 27017),
 }
+export const DB_URI = _.defaultTo(process.env.MONGODB_URI, "");

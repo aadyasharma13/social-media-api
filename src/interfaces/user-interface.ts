@@ -1,4 +1,5 @@
-import User from "../database/models/user.model";
+import { Types } from 'mongoose';
+import type IUserModel from '../database/models/user.model';
 
 export interface IUser {
   email: string;
@@ -10,7 +11,9 @@ export interface IUser {
   website?: string;
   dob?: Date;
   role?: 'user' | 'admin';
-  following: User[];
+  following: Array<IUserModel | Types.ObjectId | string>;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 

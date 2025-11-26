@@ -28,7 +28,7 @@ const FollowSchema = new Schema({
 FollowSchema.index({ follower: 1, following: 1 }, { unique: true });
 
 // Prevent users from following themselves
-FollowSchema.pre('validate', function(next) {
+FollowSchema.pre<IFollowModel>('validate', function(this: IFollowModel, next) {
   if (this.follower.toString() === this.following.toString()) {
     const error = new Error('Users cannot follow themselves');
     return next(error);

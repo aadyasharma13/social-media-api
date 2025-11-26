@@ -17,7 +17,7 @@ router.param('commentId', async function (req: Request, res: Response, next, id)
     }
     req.comment = comment;
     return next();
-  } catch (error: any) {
+  } catch (error) {
     return next(error);
   }
 });

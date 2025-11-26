@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { Types } from 'mongoose';
 import { User } from '../database/models/user.model';
 import { Post } from '../database/models/post.model';
 import { Comment } from '../database/models/comment.model';
@@ -6,6 +7,22 @@ import { Like } from '../database/models/like.model';
 import { paginate } from '../utilities/pagination';
 import { sendSuccess, sendError, sendUnauthorized, sendNotFound, sendForbidden } from '../utilities/response';
 import { createNotification } from '../services/notification.service';
+
+const toAuthorId = (author: any): string | null => {
+  if (!author) {
+    return null;
+  }
+  if (typeof author === 'string') {
+    return author;
+  }
+  if (author instanceof Types.ObjectId) {
+    return author.toString();
+  }
+  if ('_id' in author) {
+    return author._id?.toString?.() || null;
+  }
+  return null;
+};
 
 /**
  * Post Controller
@@ -109,7 +126,10 @@ export class PostController {
         return sendUnauthorized(res, 'User not found');
       }
 
-      if (req.post.author._id.toString() === req.payload.id.toString()) {
+  const postAuthorId = toAuthorId(req.post.author);
+  const requesterId = req.payload.id?.toString();
+
+  if (postAuthorId && requesterId && postAuthorId === requesterId) {
         if (typeof req.body.post.content !== 'undefined') {
           req.post.content = req.body.post.content;
         }
@@ -143,7 +163,8 @@ export class PostController {
         return sendUnauthorized(res, 'User not found');
       }
 
-      const isAuthor = req.post.author._id.toString() === userId.toString();
+  const postAuthorId = toAuthorId(req.post.author);
+  const isAuthor = postAuthorId === userId.toString();
       const isAdmin = user.role === 'admin';
 
       if (isAuthor || isAdmin) {
@@ -190,7 +211,7 @@ export class PostController {
       await createNotification(postAuthorId, 'like', userId, postId);
 
       return sendSuccess(res, null, 'Post liked successfully');
-    } catch (error: any) {
+  } catch (error) {
       if (error.code === 11000) {
         return sendError(res, 'Post already liked', 409);
       }
