@@ -287,43 +287,43 @@ Before you begin, ensure you have:
 
 #### Step 1: Clone & Install
 
-```bash
+   ```bash
 # Clone the repository
 git clone https://github.com/aadyasharma13/social-media-api.git
 cd social-media-api
 
 # Install dependencies
-npm install
-```
+   npm install
+   ```
 
 #### Step 2: Configure Environment
 
-```bash
+   ```bash
 # Create environment file
 cp .env.example .env
 
 # Or create manually with these required values:
 cat > .env << 'EOF'
 # Application
-APP_ENV=dev
-APP_PORT=3000
+   APP_ENV=dev
+   APP_PORT=3000
 
 # Security (CHANGE IN PRODUCTION!)
 JWT_SECRET=your-super-secret-jwt-key-change-me
 SESSION_SECRET=your-session-secret-change-me
 
 # Database - Option A: Local/Docker MongoDB
-DB_HOST=localhost
-DB_PORT=27017
-DB_NAME=social_media_api
-DB_USER=
-DB_USER_PWD=
+   DB_HOST=localhost
+   DB_PORT=27017
+   DB_NAME=social_media_api
+   DB_USER=
+   DB_USER_PWD=
 
 # Database - Option B: MongoDB Atlas (uncomment and fill)
 # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname
 
 # Logging
-LOG_DIRECTORY=logs
+   LOG_DIRECTORY=logs
 EOF
 ```
 
@@ -410,9 +410,9 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 ### Development Mode
 
-```bash
+   ```bash
 # Option 1: Using npm scripts (requires concurrently)
-npm run start
+   npm run start
 
 # Option 2: Manual build and run
 npx tsc && node build/server.js
@@ -1235,7 +1235,7 @@ social-media-api/
 #### ❌ Server won't start
 
 **Port already in use:**
-```bash
+   ```bash
 # Kill process on port 3000
 lsof -ti:3000 | xargs kill -9
 ```

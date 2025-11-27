@@ -16,14 +16,14 @@ passport.use(new LocalStrategy({
   async (email, password, done) => {
     try {
       const user = await User.findOne({email});
-      if (!user) {
-        return done(null, false, {message: 'Incorrect email.'});
-      }
+        if (!user) {
+          return done(null, false, {message: 'Incorrect email.'});
+        }
       const isValid = await user.validPassword(password);
       if (!isValid) {
-        return done(null, false, {message: 'Incorrect password.'});
-      }
-      return done(null, user);
+          return done(null, false, {message: 'Incorrect password.'});
+        }
+        return done(null, user);
     } catch (error) {
       return done(error);
     }

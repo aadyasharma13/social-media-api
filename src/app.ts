@@ -6,6 +6,8 @@ import session from 'express-session';
 import helmet from "helmet";
 import compression from "compression";
 import { SESSION_SECRET } from "./utilities/secrets";
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 import './database'; // initialize database
 import './utilities/passport'
 
@@ -30,6 +32,12 @@ app.use(session({
     saveUninitialized: false
   }
 ));
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Social Media API Documentation'
+}));
+
 app.use('/api', MainRouter);
 
 loadErrorHandlers(app);
